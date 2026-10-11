@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VehicleCare — Maintenance, made simple</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="toast" class="toast" role="status"></div>
+  <main id="authView" class="auth-shell">
+    <section class="auth-brand">
+      <div class="brand"><span class="brand-icon">V</span><span>Vehicle<span class="brand-light">Care</span></span></div>
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> YOUR VEHICLE, LOOKED AFTER</div>
+        <h1>Good journeys<br>start with <em>good care.</em></h1>
+        <p>One simple place to stay ahead of servicing, keep your maintenance history, and drive with confidence.</p>
+        <div class="hero-stats"><div><strong>01</strong><span>Track your vehicles</span></div><div><strong>02</strong><span>Plan every service</span></div><div><strong>03</strong><span>Keep a clear history</span></div></div>
+      </div>
+      <div class="auth-foot">MADE FOR THE ROAD AHEAD <span>© VehicleCare</span></div>
+    </section>
+    <section class="auth-panel">
+      <div class="mobile-brand brand"><span class="brand-icon">V</span><span>Vehicle<span class="brand-light">Care</span></span></div>
+      <div class="auth-card">
+        <div class="eyebrow blue-eyebrow">WELCOME TO VEHICLECARE</div>
+        <h2 id="authTitle">Welcome back</h2><p id="authSubtitle" class="muted">Sign in to manage your vehicle maintenance.</p>
+        <form id="authForm">
+          <label>Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+          <label>Password<input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters" required /></label>
+          <label id="confirmWrap" class="hidden">Confirm password<input id="confirmPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Repeat your password" /></label>
+          <button class="primary full" id="authSubmit" type="submit">Sign in <span>→</span></button>
+        </form>
+        <div class="auth-switch"><span id="switchText">New to VehicleCare?</span> <button id="switchMode" class="text-button" type="button">Create account</button></div>
+        <p class="secure-note"><span>●</span> Your vehicle records are private to your account.</p>
+      </div>
+      <div class="auth-bottom">Built for better ownership.</div>
+    </section>
+  </main>
+
+  <main id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-icon">V</span><span>Vehicle<span class="brand-light">Care</span></span></div>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-page="overview"><span>▦</span> Overview</button>
+      <button class="nav-item" data-page="reminders"><span>◷</span> Reminders <b id="navReminderCount">0</b></button>
+      <button class="nav-item" data-page="history"><span>↺</span> Service history</button>
+      <div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><strong>Stay road-ready</strong><p>Add service reminders before your next trip.</p><button id="quickAdd" class="help-link">Add a reminder ↗</button></div>
+        <div class="profile"><div class="avatar" id="avatar">U</div><div class="profile-text"><strong id="profileEmail">User</strong><span>Personal account</span></div><button id="logoutBtn" class="logout" title="Sign out" aria-label="Sign out">↗</button></div>
+      </div>
+    </aside>
+    <section class="main-area">
+      <header class="topbar"><div><div class="breadcrumb">Workspace <span>/</span> <strong id="pageCrumb">Overview</strong></div><div class="today" id="todayText"></div></div><button id="addReminderTop" class="primary"><span>＋</span> Add reminder</button></header>
+      <div class="page-content">
+        <section id="overviewPage">
+          <div class="welcome-row"><div><div class="eyebrow blue-eyebrow">YOUR GARAGE AT A GLANCE</div><h1>Drive easy, <span id="welcomeName">there.</span></h1><p class="muted">A little maintenance today can prevent a bigger problem tomorrow.</p></div><div class="welcome-mark">VC<span>✦</span></div></div>
+          <div class="metric-grid">
+            <article class="metric"><div class="metric-top"><span>Total reminders</span><span class="metric-icon">◷</span></div><strong id="totalCount">0</strong><div class="metric-foot">All your planned maintenance</div></article>
+            <article class="metric"><div class="metric-top"><span>Due soon</span><span class="metric-icon amber">⌁</span></div><strong id="dueCount">0</strong><div class="metric-foot">Within the next 7 days</div></article>
+            <article class="metric"><div class="metric-top"><span>Overdue</span><span class="metric-icon red">!</span></div><strong id="overdueCount">0</strong><div class="metric-foot">Needs your attention</div></article>
+            <article class="metric"><div class="metric-top"><span>Completed services</span><span class="metric-icon green">✓</span></div><strong id="historyCount">0</strong><div class="metric-foot">Saved in your history</div></article>
+          </div>
+          <div class="content-grid">
+            <article class="panel reminders-panel"><div class="panel-heading"><div><h3>Upcoming maintenance</h3><p>Keep the next important dates in sight.</p></div><button class="subtle-button" data-goto="reminders">View all →</button></div><div id="upcomingList" class="item-list"></div><div id="upcomingEmpty" class="empty-state hidden"><div class="empty-symbol">◷</div><strong>Nothing scheduled yet</strong><p>Add your first reminder to stay on track.</p><button class="primary" id="emptyAdd">＋ Add reminder</button></div></article>
+            <article class="panel tip-panel"><div class="tip-art"><span class="tip-circle">✦</span><div class="road-line"></div><div class="car-emoji">🚙</div></div><div class="eyebrow blue-eyebrow">A QUICK REMINDER</div><h3>Small checks.<br>Longer journeys.</h3><p>Regular oil, tyre, brake and fluid checks can help keep your vehicle safe and reliable.</p><div class="tip-divider"></div><div class="tip-bottom"><span>YOUR NEXT STEP</span><button id="tipAdd">Plan a service ↗</button></div></article>
+          </div>
+          <article class="panel history-preview"><div class="panel-heading"><div><h3>Recently completed</h3><p>Your maintenance, all in one timeline.</p></div><button class="subtle-button" data-goto="history">View history →</button></div><div id="recentHistory" class="item-list"></div><div id="historyEmpty" class="empty-inline">Completed services will appear here.</div></article>
+        </section>
+        <section id="remindersPage" class="hidden">
+          <div class="section-title"><div><div class="eyebrow blue-eyebrow">PLAN AHEAD</div><h1>Maintenance reminders</h1><p class="muted">Create and manage your upcoming vehicle care.</p></div><button id="addReminderPage" class="primary">＋ Add reminder</button></div>
+          <div class="filter-row"><div class="search-wrap">⌕ <input id="reminderSearch" placeholder="Search maintenance..." /></div><select id="reminderFilter"><option value="all">All reminders</option><option value="upcoming">Upcoming</option><option value="due">Due soon</option><option value="overdue">Overdue</option></select></div>
+          <div id="allReminders" class="table-list"></div><div id="remindersEmpty" class="empty-state hidden"><div class="empty-symbol">◷</div><strong>No reminders found</strong><p>Add a reminder or change your search.</p><button class="primary" id="reminderEmptyAdd">＋ Add reminder</button></div>
+        </section>
+        <section id="historyPage" class="hidden">
+          <div class="section-title"><div><div class="eyebrow blue-eyebrow">YOUR VEHICLE TIMELINE</div><h1>Service history</h1><p class="muted">A record of the work you have completed.</p></div></div>
+          <div class="history-summary"><div><span>Completed services</span><strong id="historyTotal">0</strong></div><div><span>Total recorded spend</span><strong id="totalSpend">₹0</strong></div></div>
+          <div id="allHistory" class="table-list"></div><div id="allHistoryEmpty" class="empty-state hidden"><div class="empty-symbol">↺</div><strong>Your history starts here</strong><p>Mark a reminder as completed to build your service timeline.</p><button class="primary" id="historyAdd">＋ Add reminder</button></div>
+        </section>
+      </div>
+      <footer class="app-footer"><span>VEHICLECARE <span class="footer-dot">●</span> MAINTENANCE MADE SIMPLE</span><span>Take care of your car. It takes care of your journey.</span></footer>
+    </section>
+  </main>
+
+  <dialog id="reminderDialog" class="modal">
+    <form id="reminderForm" class="modal-card">
+      <div class="modal-heading"><div><div class="eyebrow blue-eyebrow">KEEP IT ROAD-READY</div><h2 id="modalTitle">Add a reminder</h2><p class="muted">Set a date and we'll keep it on your dashboard.</p></div><button type="button" id="closeModal" class="close-button" aria-label="Close">×</button></div>
+      <input type="hidden" id="reminderId" />
+      <div class="form-grid">
+        <label>Vehicle name<input id="vehicleName" placeholder="e.g. Honda Activa" required maxlength="80" /></label>
+        <label>Vehicle registration <input id="registration" placeholder="e.g. MH12AB1234" maxlength="20" /></label>
+        <label class="wide">Maintenance task<select id="serviceType" required><option value="General service">General service</option><option>Engine oil change</option><option>Tyre check / replacement</option><option>Brake inspection</option><option>Battery check</option><option>Insurance renewal</option><option>PUC certificate renewal</option><option>Vehicle washing</option><option>Other</option></select></label>
+        <label>Due date<input id="dueDate" type="date" required /></label>
+        <label>Odometer (km)<input id="odometer" type="number" min="0" placeholder="e.g. 12500" /></label>
+        <label>Estimated cost (₹)<input id="cost" type="number" min="0" step="0.01" placeholder="e.g. 1500" /></label>
+        <label class="wide">Notes (optional)<textarea id="notes" rows="3" placeholder="Workshop details, parts to check, etc."></textarea></label>
+      </div>
+      <div class="modal-actions"><button type="button" id="cancelModal" class="secondary">Cancel</button><button type="submit" id="saveReminder" class="primary">Save reminder <span>→</span></button></div>
+    </form>
+  </dialog>
+  <dialog id="completeDialog" class="modal">
+    <form id="completeForm" class="modal-card compact-modal">
+      <div class="modal-heading"><div><div class="eyebrow blue-eyebrow">SERVICE COMPLETE</div><h2>Save to history</h2><p class="muted">Record the work and final amount.</p></div><button type="button" id="closeComplete" class="close-button">×</button></div>
+      <input type="hidden" id="completeId" />
+      <label>Completion date<input type="date" id="completedDate" required /></label>
+      <label>Final cost (₹)<input type="number" min="0" step="0.01" id="finalCost" placeholder="0" /></label>
+      <label>Service notes<textarea id="completionNotes" rows="3" placeholder="What was done?"></textarea></label>
+      <div class="modal-actions"><button type="button" id="cancelComplete" class="secondary">Cancel</button><button type="submit" class="primary">Mark complete ✓</button></div>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
