@@ -1,6 +1,6 @@
 /* VehicleCare. Configure Supabase credentials in the block below. */
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://toasgmnhfewthbbzqka.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_w24Upstnfa0-huW3Fb019Q_mGVu9zsp";
 const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
 const db = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const $ = id => document.getElementById(id);
